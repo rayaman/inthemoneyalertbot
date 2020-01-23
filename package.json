@@ -2,9 +2,10 @@
   "name": "inthemoneyalertbot",
   "version": "1.0.0",
   "description": "Alert members who subscribe to a ticket symbol",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/rayaman/inthemoneyalertbot/issues"
   },
-  "homepage": "https://github.com/rayaman/inthemoneyalertbot#readme"
+  "homepage": "https://github.com/rayaman/inthemoneyalertbot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "mongodb": "^3.5.2",
+    "mongoose": "^5.8.9"
+  }
 }
