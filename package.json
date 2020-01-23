@@ -1,0 +1,19 @@
+{
+  "name": "inthemoneyalertbot",
+  "version": "1.0.0",
+  "description": "Alert members who subscribe to a ticket symbol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rayaman/inthemoneyalertbot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rayaman/inthemoneyalertbot/issues"
+  },
+  "homepage": "https://github.com/rayaman/inthemoneyalertbot#readme"
+}
