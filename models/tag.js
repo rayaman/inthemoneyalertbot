@@ -15,6 +15,15 @@ tagSchema.statics.tagExists = function(id,tag,callback,alreadyHave,noHave,a,a2) 
         callback(t!==null, tag, t,alreadyHave,noHave,a==a2)
     })
 }
+tagSchema.statics.removeTags = async function(id,callback) {
+    records = await this.find({userid: id});
+    this.deleteMany({ userid: id}, function(){})
+    var rec = []
+    for(var r in records){
+        rec.push(records[r].tag)
+    }
+    callback(rec)
+}
 tagSchema.statics.addTag = function(id,t) {
     var tag = new Tag({
         tag: t,
