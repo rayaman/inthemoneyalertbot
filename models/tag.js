@@ -10,6 +10,20 @@ const tagSchema = new mongoose.Schema({
         required: true,
     },
 })
-
+tagSchema.statics.tagExists = function(id,tag,callback,alreadyHave,noHave,a,a2) {
+    this.findOne({tag: tag,userid: id}, function(err,t){
+        callback(t!==null, tag, t,alreadyHave,noHave,a==a2)
+    })
+}
+tagSchema.statics.addTag = function(id,t) {
+    var tag = new Tag({
+        tag: t,
+        userid: id
+    })
+    tag.save()
+}
+tagSchema.statics.removeTag = function (id,tag,callback) {
+    this.findOneAndDelete({tag: tag,userid: id},function(err){})
+}
 const Tag = mongoose.model('tags', tagSchema)
 module.exports = Tag

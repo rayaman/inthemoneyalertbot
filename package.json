@@ -4,7 +4,7 @@
   "description": "Alert members who subscribe to a ticket symbol",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nodemon app.js",
     "start": "node app.js"
   },
   "repository": {
@@ -21,6 +21,7 @@
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
     "mongodb": "^3.5.2",
-    "mongoose": "^5.8.9"
+    "mongoose": "^5.8.9",
+    "nodemon": "^2.0.2"
   }
 }
