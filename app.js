@@ -230,8 +230,10 @@ bot.on('message', msg => {
                     speak = true
                 }
                 break
-            case "test":
-                test(args[0])
+            case "init":
+                if (msg.author.id == 137988979088818177) {
+                    MESSAGE = msg
+                }
                 break
             default:
                 send(msg, "Invalid command '" + cmd + "'")
