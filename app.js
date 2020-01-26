@@ -6,9 +6,9 @@ if (result.error) {
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
 const Discord = require('discord.js')
-const Tag = require('./models/tag.js')
+//const Tag = require('./models/tag.js')
 require("./db/mongoose")
-const alpha = require('alphavantage')({ key: process.env.ALPHA });
+//const alpha = require('alphavantage')({ key: process.env.ALPHA });
 
 const bot = new Discord.Client()
 
@@ -38,84 +38,52 @@ function alert(args, msg) {
     var noHave = new Array();
     if (args.length == 0) {
         //Display all alerts
-        Tag.getTags(msg.author.id, (tags) => {
-            if (tags.length > 0) {
-                reply(msg, "List of tags: " + tags)
-            } else {
-                reply(msg, "You currently do not have any tags!")
+        msg.member.roles.find(r => {
+            if(r.name.startsWith("$")){
+                alreadyHave.push(r.name.substring(1))
             }
         })
+        send(msg,"Roles you currently have: "+alreadyHave)
         return
     }
     for (var a in args) {
-        tickerExists(args[a], (bo) => {
-            Tag.tagExists(msg.author.id, args[a], (b, tag, _t, have, nohave, done) => {
-                if (!bo) {
-                    b = true
-                }
-                if (b) {
-                    have.push(tag)
-                } else {
-                    nohave.push(tag)
-                    addRole(msg, "$" + tag)
-                    Tag.addTag(msg.author.id, tag)
-                }
-                if (done) {
-                    if (have.length > 0 && nohave.length > 0) {
-                        send(msg, "Error adding tags " + have + ". Ticker(s) already exist or invalid! Added alerts for " + nohave + "!")
-                    } else if (have.length > 0) {
-                        send(msg, "Error adding tags " + have + ". Ticker(s) already exist or invalid!")
-                    } else if (nohave.length > 0) {
-                        send(msg, "Added alerts for " + nohave + "!")
-                    } else {
-                        send(msg, "No tickers were supplied!")
-                    }
-                }
-            }, alreadyHave, noHave, parseInt(a) + 1, args.length)
-        })
+        if(msg.member.roles.find(r => r.name === "$"+args[a])){
+            alreadyHave.push(args[a])
+        } else {
+            noHave.push(args[a])
+            addRole(msg,"$"+args[a])
+        }
+    }
+    var str = ""
+    if (alreadyHave.length>0){
+        str+="You already have the role(s): "+alreadyHave+" "
+    }
+    if (noHave.length>0){
+        str+="Added the role(s): "+noHave
+    }
+    if(str.length>0){
+        send(msg,str)
     }
 }
 function removealert(args, msg) {
-    var alreadyHave = new Array();
-    var noHave = new Array();
     if (args.length == 0) {
-        Tag.removeTags(msg.author.id, (rec) => {
-            for (r in rec) {
-                removeRole(msg, "$" + rec[r])
+        msg.member.roles.find(r => {
+            if(r.name.startsWith("$")){
+                removeRole(msg,r.name)
             }
-            send(msg, "Removed all of your alerts")
         })
+        send(msg,"Removed all roles!")
         return
     }
     for (var a in args) {//removeTag
-        Tag.tagExists(msg.author.id, args[a], (b, tag, _t, have, nohave, done) => {
-            if (b) {
-                Tag.removeTag(msg.author.id, tag)
-                have.push(tag)
-                removeRole(msg, "$" + tag)
-            } else {
-                nohave.push(tag)
-            }
-            if (done) {
-                if (have.length > 0 && nohave.length > 0) {
-                    send(msg, "Removed alerts for " + have + "! Cannot remove alerts for " + nohave + " (No alerts were are registered)!")
-                } else if (have.length > 0) {
-                    send(msg, "Removing alerts for " + have + "!")
-                } else if (nohave.length > 0) {
-                    send(msg, "Cannot remove alerts for " + nohave + " (No alerts were are registered)!")
-                } else {
-                    send(msg, "No tickers were supplied!")
-                }
-            }
-        }, alreadyHave, noHave, parseInt(a) + 1, args.length)
+        role = roleExists(msg, "$" + args[a])
+        if(msg.member.roles.has(role.id)){
+            removeRole(msg, "$" + args[a])
+        }
+        send(msg,"Removed given roles!")
     }
 }
 function tickerExists(ticker, callback) {
-    // alpha.data.intraday(ticker).then(data => {
-    //     callback(true)
-    // }).catch(err => {
-    //     callback(false)
-    // });
     var options = {
         host: 'eoddata.com',
         port: 80,
@@ -177,31 +145,26 @@ function removeRole(msg, role) {
         msg.member.removeRole(roleExists(msg, role)).catch(console.error);
     }
 }
-function CheckTickers() {
-    var msg = MESSAGE
+function CheckTickers(msg) {
     msg.guild.roles.forEach(role => {
         if (msg.guild.roles.get(roleExists(msg, role.name).id).members.map(m => m.user.tag).join('') === "") {
-            if (role.name.startsWith("$")) {
+            if (role.name.startsWith("$")) { // Delete only roles that have $... that are no longer in use
                 deleteRole(msg, role.name)
             }
         }
     })
 }
-function test(t) {
-
+function Purge(msg){
+    msg.guild.members.forEach(member => {
+        member.roles.forEach(role => {
+            if(role.name.startsWith("$")){
+                role.delete()
+            }
+        })
+    })
 }
-var MESSAGE
-setInterval(function () {
-    if (MESSAGE) {
-        console.log("Checking...")
-        CheckTickers()
-    } // Check for unused tickers every 5 minutes. Will change to each day
-}, 300000);//
 bot.on('message', msg => {
     //Ignore all messages not starting with '!'
-    if (!MESSAGE) {
-        MESSAGE = msg
-    }
     if (msg.content.startsWith("!")) {
         var rawmsg = msg.content.substring(1);
         if (rawmsg.includes(",")) {
@@ -212,6 +175,9 @@ bot.on('message', msg => {
             var args = rawmsg.split(" ")
         }
         var cmd = alias(args.shift())
+        for(var a in args){
+            args[a]=args[a].toUpperCase()
+        }
         // Remember to modify the aliases dictonary! The key is the case being tested
         switch (cmd) {
             case "alert":
@@ -219,6 +185,9 @@ bot.on('message', msg => {
                 break
             case "removealert":
                 removealert(args, msg)
+                setTimeout(function(){
+                    CheckTickers(msg)
+                }, 1000);
                 break
             case "quiet":
                 if (msg.author.id == 137988979088818177) {
@@ -232,7 +201,12 @@ bot.on('message', msg => {
                 break
             case "init":
                 if (msg.author.id == 137988979088818177) {
-                    MESSAGE = msg
+                    console.log("Selected Server!")
+                }
+                break
+            case "purge":
+                if (msg.author.id == 137988979088818177) {
+                    Purge(msg)
                 }
                 break
             default:
