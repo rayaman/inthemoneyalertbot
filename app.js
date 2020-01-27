@@ -1,13 +1,12 @@
 var result = require('dotenv').config()
 const http = require('http')
+const axios = require('axios')
 if (result.error) {
     throw result.error
 }
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
 const Discord = require('discord.js')
-//const Tag = require('./models/tag.js')
-require("./db/mongoose")
 //const alpha = require('alphavantage')({ key: process.env.ALPHA });
 
 const bot = new Discord.Client()
@@ -17,10 +16,12 @@ const TOKEN = process.env.TOKEN
 var aliases = {
     alert: ["a", "alerts"],
     removealert: ["r", "removealerts", "removeallalerts", "remove", "removeall"],
+    show: ["s"]
 }
 
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
+    manageStatus()
 });
 var speak = true
 function reply(msg, txt) {
@@ -163,6 +164,59 @@ function Purge(msg){
         })
     })
 }
+function show(msg,args){
+    if (args.length<1){
+        send(msg,"Command cannot currently be used without tickers! Please use like: !show ticker or !show ticker1,ticker2,...")
+        return
+    }
+    for(var a in args){
+        args[a] = "$"+args[a]
+    }
+    var list = {}
+    msg.guild.members.forEach(member => {
+        if(!(member.displayName in list)){
+            list[member.displayName] = new Array()
+        }
+        member.roles.forEach(role => {
+            if(args.includes(role.name)){
+                list[member.displayName].push([role.name])
+            }
+        })
+    })
+    var arr = new Array()
+    for(var i in list) {
+        if (list[i].length>0) {
+            arr.push({"name": i,"value": list[i].toString()})
+        }
+    }
+    var test = {
+        "embed": {
+            "description": "**List of Users watching one or more of: "+ args +"**",
+            "fields": arr
+        }
+    }
+    send(msg,test)
+}
+const url = "https://money.cnn.com/data/fear-and-greed/"
+function manageStatus(){
+    axios.get(url).then(response => {
+        setStatus("Fear & Greed"+response.data.match(/: (\d*) (\(.*?\))/g)[0])
+    }).catch(error=>{
+        console.log(error)
+    })
+}
+setInterval(function(){
+    manageStatus()
+},18000000)
+function setStatus(name){
+    bot.user.setStatus("online")
+    bot.user.setPresence({
+        game: {
+            name: name,
+            type: "WATCHING"
+        }
+    })
+}
 bot.on('message', msg => {
     //Ignore all messages not starting with '!'
     if (msg.content.startsWith("!")) {
@@ -189,6 +243,9 @@ bot.on('message', msg => {
                     CheckTickers(msg)
                 }, 1000);
                 break
+            case "show":
+                show(msg,args)
+                break
             case "quiet":
                 if (msg.author.id == 137988979088818177) {
                     speak = false
@@ -208,6 +265,22 @@ bot.on('message', msg => {
                 if (msg.author.id == 137988979088818177) {
                     Purge(msg)
                 }
+                break
+            case "test":
+                var test = {
+                    "embed": {
+                        "description": "**List of Users watching: [tags]**",
+                        "fields": [{
+                            "name": "name1",
+                            "value": "[list here]"
+                        },
+                        {
+                            "name": "name2",
+                            "value": "[list]]"
+                        }]
+                    }
+                }
+                send(msg,test)
                 break
             default:
                 send(msg, "Invalid command '" + cmd + "'")
