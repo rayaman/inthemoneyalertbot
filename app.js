@@ -1,6 +1,7 @@
 var result = require('dotenv').config()
 const http = require('http')
 const axios = require('axios')
+const earnings = require("./earnings")
 if (result.error) {
     throw result.error
 }
@@ -16,12 +17,17 @@ const TOKEN = process.env.TOKEN
 var aliases = {
     alert: ["a", "alerts"],
     removealert: ["r", "removealerts", "removeallalerts", "remove", "removeall"],
-    show: ["s"]
+    show: ["s"],
 }
-
+var today
+var tomorrow
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     manageStatus()
+    earnings.get((_today,_tomorrow)=>{
+        today = _today
+        tomorrow = _tomorrow
+    })
 });
 var speak = true
 function reply(msg, txt) {
@@ -44,7 +50,11 @@ function alert(args, msg) {
                 alreadyHave.push(r.name.substring(1))
             }
         })
-        send(msg,"Roles you currently have: "+alreadyHave)
+        if(alreadyHave.length>0){
+            send(msg,"Roles you currently have: "+alreadyHave)
+        } else {
+            send(msg,"You do not currently have any roles!")
+        }
         return
     }
     for (var a in args) {
@@ -113,6 +123,9 @@ function roleExists(message, r) {
 }
 function userHasRoles(message, roles) {
     return message.member.roles.some(r => roles.includes(r.name))
+}
+function userHasRole(message,role){
+    return message.member.roles.some(r => role == r.name)
 }
 function createRole(msg, r, callback) {
     if (roleExists(msg, r)) {
@@ -200,7 +213,7 @@ function show(msg,args){
 const url = "https://money.cnn.com/data/fear-and-greed/"
 function manageStatus(){
     axios.get(url).then(response => {
-        setStatus("Fear & Greed"+response.data.match(/: (\d*) (\(.*?\))/g)[0])
+        setStatus("FGI"+response.data.match(/: (\d*) (\(.*?\))/g)[0])
     }).catch(error=>{
         console.log(error)
     })
@@ -216,6 +229,94 @@ function setStatus(name){
             type: "WATCHING"
         }
     })
+}
+/*
+var arr = new Array()
+    for(var i in list) {
+        if (list[i].length>0) {
+            arr.push({"name": i,"value": list[i].toString()})
+        }
+    }
+    var test = {
+        "embed": {
+            "description": "**List of Users watching one or more of: "+ args +"**",
+            "fields": arr
+        }
+    }
+*/
+function _earnings(msg,args){
+    var day = null
+    if(args.includes("TOMORROW")){
+        day = "TOMORROW"
+    } else if (args.includes("TODAY")){
+        day = "TODAY"
+    }
+    if(!args.includes("ALL")){
+        my_earnings(msg,day)
+        return
+    }
+    var arr = new Array()
+    desc = ""
+    var d = new Date()
+    d.setHours(d.getHours()-5)
+    if(day == "TODAY" || (d.getHours()<=17 && day !="TOMORROW")){
+        desc = "**List of Earnings for stocks that are followed on this server. Date: "+d.toISOString().substring(0,10)+"**"
+        for(var s in today.sym){
+            if(roleExists(msg, "$"+today.sym[s])){
+                arr.push({"name": "$"+today.sym[s],"value": today.time[s]})
+            }
+        }
+    } else {
+        d.setDate(d.getDate()+1)
+        desc = "**List of Earnings for stocks that are followed on this server. Date: "+d.toISOString().substring(0,10)+"**"
+        for(var s in tomorrow.sym){
+            if(roleExists(msg, "$"+tomorrow.sym[s])){
+                arr.push({"name": "$"+tomorrow.sym[s],"value": tomorrow.time[s]})
+            }
+        }
+    }
+    if (arr.length>0){
+        send(msg,{
+            "embed": {
+                "description": desc,
+                "fields": arr
+            }
+        })
+    } else {
+        send(msg,"No earnings to display")
+    }
+}
+function my_earnings(msg,day) {
+    var arr = new Array()
+    desc = ""
+    var d = new Date()
+    if(day == "TODAY" || (d.getHours()<=17 && day !="TOMORROW")){
+        d.setHours(d.getHours()-5)
+        desc = "**List of Earnings for stocks that you are following on this server. Date: "+d.toISOString().substring(0,10)+"**"
+        for(var s in today.sym){
+            if(userHasRole(msg, "$"+today.sym[s])){
+                arr.push({"name": "$"+today.sym[s],"value": today.time[s]})
+            }
+        }
+    } else {
+        d.setDate(d.getDate()+1)
+        desc = "**List of Earnings for stocks that you are following on this server. Date: "+d.toISOString().substring(0,10)+"**"
+        for(var s in tomorrow.sym){
+            if(userHasRole(msg, "$"+tomorrow.sym[s])){
+                arr.push({"name": "$"+tomorrow.sym[s],"value": tomorrow.time[s]})
+            }
+        }
+    }
+    if (arr.length>0){
+        send(msg,{
+            "embed": {
+                "description": desc,
+                "fields": arr
+            }
+        })
+    } else {
+        send(msg,"No earnings to display")
+    }
 }
 bot.on('message', msg => {
     //Ignore all messages not starting with '!'
@@ -266,21 +367,8 @@ bot.on('message', msg => {
                     Purge(msg)
                 }
                 break
-            case "test":
-                var test = {
-                    "embed": {
-                        "description": "**List of Users watching: [tags]**",
-                        "fields": [{
-                            "name": "name1",
-                            "value": "[list here]"
-                        },
-                        {
-                            "name": "name2",
-                            "value": "[list]]"
-                        }]
-                    }
-                }
-                send(msg,test)
+            case "e":
+                _earnings(msg,args)
                 break
             default:
                 send(msg, "Invalid command '" + cmd + "'")

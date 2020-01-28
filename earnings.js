@@ -1,12 +1,14 @@
 const axios = require('axios')
+process.env.TZ = 'America/New_York'
 reQuotes = new RegExp(/\/quote\/[\w]*\?p=([\w]*)/g)
 reTime = new RegExp(/">(After Market Close|Before Market Open|Time Not Supplied|TAS)+/g)
+var day=["sun","mon","tue","wed","thu","fri","sat"]
+var tday=["mon","tue","wed","thu","fri"]
 function getNextTradingDay(d){
     if(d==null){
-        d = new Date();
+        d = new Date()
+        d.setHours(d.getHours()-5)
     }
-    var day=["sun","mon","tue","wed","thu","fri","sat"]
-    var tday=["mon","tue","wed","thu","fri"]
     d.setDate(d.getDate()+1)
     if(tday.includes(day[d.getDay()])){
         return d.toISOString().substring(0,10)
@@ -16,8 +18,12 @@ function getNextTradingDay(d){
 }
 function getTradingDay(){
     var d = new Date()
-    d.setDate(d.getDate()-1)
-    return getNextTradingDay(d)
+    d.setHours(d.getHours()-5)
+    if(tday.includes(day[d.getDay()])){
+        return d.toISOString().substring(0,10)
+    } else {
+        return getNextTradingDay(d)
+    }
 }
 
 function earnings(url){
@@ -49,15 +55,12 @@ function earnings(url){
     return promise
 }
 async function getEarnings(callback){
-    var urlToday = 'https://finance.yahoo.com/calendar/earnings?day='+getNextTradingDay()
+    var urlToday = 'https://finance.yahoo.com/calendar/earnings?day='+getTradingDay()
     var urlTomorrow = 'https://finance.yahoo.com/calendar/earnings?day='+getNextTradingDay()
     var today = await earnings(urlToday)
     var tomorrow = await earnings(urlTomorrow)
     callback(today,tomorrow)
 }
-getEarnings((today,tomorrow)=>{
-    console.log(today.sym,
-    today.time,
-    tomorrow.sym,
-    tomorrow.time)
-})
+module.exports = {
+    get: getEarnings
+}
