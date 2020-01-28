@@ -6,7 +6,8 @@
   "scripts": {
     "db": "C:\\mongodb\\bin\\mongod.exe --db-data=C:\\mongodb-data",
     "test": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "work": "node test.js"
   },
   "repository": {
     "type": "git",

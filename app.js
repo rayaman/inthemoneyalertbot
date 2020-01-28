@@ -5,6 +5,7 @@ const earnings = require("./earnings")
 if (result.error) {
     throw result.error
 }
+const schedule = require('node-schedule')
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
 const Discord = require('discord.js')
@@ -29,6 +30,12 @@ bot.on('ready', () => {
         tomorrow = _tomorrow
     })
 });
+schedule.scheduleJob('1 0 * * *',()=>{
+    earnings.get((_today,_tomorrow)=>{
+        today = _today
+        tomorrow = _tomorrow
+    })
+})
 var speak = true
 function reply(msg, txt) {
     if (!speak)
