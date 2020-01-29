@@ -385,4 +385,4 @@ bot.on('message', msg => {
         }
     }
 });
-bot.login(TOKEN)
+bot.login(TOKEN) // Token var from env
