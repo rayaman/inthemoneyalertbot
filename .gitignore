@@ -105,3 +105,6 @@ dist
 
 # env script
 .env
+
+# test file
+test.js

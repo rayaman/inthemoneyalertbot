@@ -374,6 +374,9 @@ bot.on('message', msg => {
                     Purge(msg)
                 }
                 break
+            case "earnings":
+                //
+                break
             case "e":
                 _earnings(msg,args)
                 break
