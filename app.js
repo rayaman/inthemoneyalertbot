@@ -25,13 +25,13 @@ var tomorrow
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     manageStatus()
-    earnings.get((_today,_tomorrow)=>{
+    earnings.get((_today, _tomorrow) => {
         today = _today
         tomorrow = _tomorrow
     })
 });
-schedule.scheduleJob('1 0 * * *',()=>{
-    earnings.get((_today,_tomorrow)=>{
+schedule.scheduleJob('1 0 * * *', () => {
+    earnings.get((_today, _tomorrow) => {
         today = _today
         tomorrow = _tomorrow
     })
@@ -53,52 +53,52 @@ function alert(args, msg) {
     if (args.length == 0) {
         //Display all alerts
         msg.member.roles.find(r => {
-            if(r.name.startsWith("$")){
+            if (r.name.startsWith("$")) {
                 alreadyHave.push(r.name.substring(1))
             }
         })
-        if(alreadyHave.length>0){
-            send(msg,"Roles you currently have: "+alreadyHave)
+        if (alreadyHave.length > 0) {
+            send(msg, "Roles you currently have: " + alreadyHave)
         } else {
-            send(msg,"You do not currently have any roles!")
+            send(msg, "You do not currently have any roles!")
         }
         return
     }
     for (var a in args) {
-        if(msg.member.roles.find(r => r.name === "$"+args[a])){
+        if (msg.member.roles.find(r => r.name === "$" + args[a])) {
             alreadyHave.push(args[a])
         } else {
             noHave.push(args[a])
-            addRole(msg,"$"+args[a])
+            addRole(msg, "$" + args[a])
         }
     }
     var str = ""
-    if (alreadyHave.length>0){
-        str+="You already have the role(s): "+alreadyHave+" "
+    if (alreadyHave.length > 0) {
+        str += "You already have the role(s): " + alreadyHave + " "
     }
-    if (noHave.length>0){
-        str+="Added the role(s): "+noHave
+    if (noHave.length > 0) {
+        str += "Added the role(s): " + noHave
     }
-    if(str.length>0){
-        send(msg,str)
+    if (str.length > 0) {
+        send(msg, str)
     }
 }
 function removealert(args, msg) {
     if (args.length == 0) {
         msg.member.roles.find(r => {
-            if(r.name.startsWith("$")){
-                removeRole(msg,r.name)
+            if (r.name.startsWith("$")) {
+                removeRole(msg, r.name)
             }
         })
-        send(msg,"Removed all roles!")
+        send(msg, "Removed all roles!")
         return
     }
     for (var a in args) {//removeTag
         role = roleExists(msg, "$" + args[a])
-        if(msg.member.roles.has(role.id)){
+        if (msg.member.roles.has(role.id)) {
             removeRole(msg, "$" + args[a])
         }
-        send(msg,"Removed given roles!")
+        send(msg, "Removed given roles!")
     }
 }
 function tickerExists(ticker, callback) {
@@ -131,7 +131,7 @@ function roleExists(message, r) {
 function userHasRoles(message, roles) {
     return message.member.roles.some(r => roles.includes(r.name))
 }
-function userHasRole(message,role){
+function userHasRole(message, role) {
     return message.member.roles.some(r => role == r.name)
 }
 function createRole(msg, r, callback) {
@@ -175,60 +175,60 @@ function CheckTickers(msg) {
         }
     })
 }
-function Purge(msg){
+function Purge(msg) {
     msg.guild.members.forEach(member => {
         member.roles.forEach(role => {
-            if(role.name.startsWith("$")){
+            if (role.name.startsWith("$")) {
                 role.delete()
             }
         })
     })
 }
-function show(msg,args){
-    if (args.length<1){
-        send(msg,"Command cannot currently be used without tickers! Please use like: !show ticker or !show ticker1,ticker2,...")
+function show(msg, args) {
+    if (args.length < 1) {
+        send(msg, "Command cannot currently be used without tickers! Please use like: !show ticker or !show ticker1,ticker2,...")
         return
     }
-    for(var a in args){
-        args[a] = "$"+args[a]
+    for (var a in args) {
+        args[a] = "$" + args[a]
     }
     var list = {}
     msg.guild.members.forEach(member => {
-        if(!(member.displayName in list)){
+        if (!(member.displayName in list)) {
             list[member.displayName] = new Array()
         }
         member.roles.forEach(role => {
-            if(args.includes(role.name)){
+            if (args.includes(role.name)) {
                 list[member.displayName].push([role.name])
             }
         })
     })
     var arr = new Array()
-    for(var i in list) {
-        if (list[i].length>0) {
-            arr.push({"name": i,"value": list[i].toString()})
+    for (var i in list) {
+        if (list[i].length > 0) {
+            arr.push({ "name": i, "value": list[i].toString() })
         }
     }
     var test = {
         "embed": {
-            "description": "**List of Users watching one or more of: "+ args +"**",
+            "description": "**List of Users watching one or more of: " + args + "**",
             "fields": arr
         }
     }
-    send(msg,test)
+    send(msg, test)
 }
 const url = "https://money.cnn.com/data/fear-and-greed/"
-function manageStatus(){
+function manageStatus() {
     axios.get(url).then(response => {
-        setStatus("FGI"+response.data.match(/: (\d*) (\(.*?\))/g)[0])
-    }).catch(error=>{
+        setStatus("FGI" + response.data.match(/: (\d*) (\(.*?\))/g)[0])
+    }).catch(error => {
         console.log(error)
     })
 }
-setInterval(function(){
+setInterval(function () {
     manageStatus()
-},18000000)
-function setStatus(name){
+}, 18000000)
+function setStatus(name) {
     bot.user.setStatus("online")
     bot.user.setPresence({
         game: {
@@ -251,78 +251,78 @@ var arr = new Array()
         }
     }
 */
-function _earnings(msg,args){
+function _earnings(msg, args) {
     var day = null
-    if(args.includes("TOMORROW")){
+    if (args.includes("TOMORROW")) {
         day = "TOMORROW"
-    } else if (args.includes("TODAY")){
+    } else if (args.includes("TODAY")) {
         day = "TODAY"
     }
-    if(!args.includes("ALL")){
-        my_earnings(msg,day)
+    if (!args.includes("ALL")) {
+        my_earnings(msg, day)
         return
     }
     var arr = new Array()
     desc = ""
     var d = new Date()
-    d.setHours(d.getHours()-5)
-    if(day == "TODAY" || (d.getHours()<=17 && day !="TOMORROW")){
-        desc = "**List of Earnings for stocks that are followed on this server. Date: "+d.toISOString().substring(0,10)+"**"
-        for(var s in today.sym){
-            if(roleExists(msg, "$"+today.sym[s])){
-                arr.push({"name": "$"+today.sym[s],"value": today.time[s]})
+    d.setHours(d.getHours() - 5)
+    if (day == "TODAY" || (d.getHours() <= 17 && day != "TOMORROW")) {
+        desc = "**List of Earnings for stocks that are followed on this server. Date: " + d.toISOString().substring(0, 10) + "**"
+        for (var s in today.sym) {
+            if (roleExists(msg, "$" + today.sym[s])) {
+                arr.push({ "name": "$" + today.sym[s], "value": today.time[s] })
             }
         }
     } else {
-        d.setDate(d.getDate()+1)
-        desc = "**List of Earnings for stocks that are followed on this server. Date: "+d.toISOString().substring(0,10)+"**"
-        for(var s in tomorrow.sym){
-            if(roleExists(msg, "$"+tomorrow.sym[s])){
-                arr.push({"name": "$"+tomorrow.sym[s],"value": tomorrow.time[s]})
+        d.setDate(d.getDate() + 1)
+        desc = "**List of Earnings for stocks that are followed on this server. Date: " + d.toISOString().substring(0, 10) + "**"
+        for (var s in tomorrow.sym) {
+            if (roleExists(msg, "$" + tomorrow.sym[s])) {
+                arr.push({ "name": "$" + tomorrow.sym[s], "value": tomorrow.time[s] })
             }
         }
     }
-    if (arr.length>0){
-        send(msg,{
+    if (arr.length > 0) {
+        send(msg, {
             "embed": {
                 "description": desc,
                 "fields": arr
             }
         })
     } else {
-        send(msg,"No earnings to display")
+        send(msg, "No earnings to display")
     }
 }
-function my_earnings(msg,day) {
+function my_earnings(msg, day) {
     var arr = new Array()
     desc = ""
     var d = new Date()
-    if(day == "TODAY" || (d.getHours()<=17 && day !="TOMORROW")){
-        d.setHours(d.getHours()-5)
-        desc = "**List of Earnings for stocks that you are following on this server. Date: "+d.toISOString().substring(0,10)+"**"
-        for(var s in today.sym){
-            if(userHasRole(msg, "$"+today.sym[s])){
-                arr.push({"name": "$"+today.sym[s],"value": today.time[s]})
+    if (day == "TODAY" || (d.getHours() <= 17 && day != "TOMORROW")) {
+        d.setHours(d.getHours() - 5)
+        desc = "**List of Earnings for stocks that you are following on this server. Date: " + d.toISOString().substring(0, 10) + "**"
+        for (var s in today.sym) {
+            if (userHasRole(msg, "$" + today.sym[s])) {
+                arr.push({ "name": "$" + today.sym[s], "value": today.time[s] })
             }
         }
     } else {
-        d.setDate(d.getDate()+1)
-        desc = "**List of Earnings for stocks that you are following on this server. Date: "+d.toISOString().substring(0,10)+"**"
-        for(var s in tomorrow.sym){
-            if(userHasRole(msg, "$"+tomorrow.sym[s])){
-                arr.push({"name": "$"+tomorrow.sym[s],"value": tomorrow.time[s]})
+        d.setDate(d.getDate() + 1)
+        desc = "**List of Earnings for stocks that you are following on this server. Date: " + d.toISOString().substring(0, 10) + "**"
+        for (var s in tomorrow.sym) {
+            if (userHasRole(msg, "$" + tomorrow.sym[s])) {
+                arr.push({ "name": "$" + tomorrow.sym[s], "value": tomorrow.time[s] })
             }
         }
     }
-    if (arr.length>0){
-        send(msg,{
+    if (arr.length > 0) {
+        send(msg, {
             "embed": {
                 "description": desc,
                 "fields": arr
             }
         })
     } else {
-        send(msg,"No earnings to display")
+        send(msg, "No earnings to display")
     }
 }
 bot.on('message', msg => {
@@ -337,8 +337,8 @@ bot.on('message', msg => {
             var args = rawmsg.split(" ")
         }
         var cmd = alias(args.shift())
-        for(var a in args){
-            args[a]=args[a].toUpperCase()
+        for (var a in args) {
+            args[a] = args[a].toUpperCase()
         }
         // Remember to modify the aliases dictonary! The key is the case being tested
         switch (cmd) {
@@ -347,12 +347,12 @@ bot.on('message', msg => {
                 break
             case "removealert":
                 removealert(args, msg)
-                setTimeout(function(){
+                setTimeout(function () {
                     CheckTickers(msg)
                 }, 1000);
                 break
             case "show":
-                show(msg,args)
+                show(msg, args)
                 break
             case "quiet":
                 if (msg.author.id == 137988979088818177) {
@@ -378,10 +378,11 @@ bot.on('message', msg => {
                 //
                 break
             case "e":
-                _earnings(msg,args)
+                _earnings(msg, args)
                 break
             default:
-                send(msg, "Invalid command '" + cmd + "'")
+                console.log("Invalid command!")
+            //send(msg, "Invalid command '" + cmd + "'")
         }
     }
 });
