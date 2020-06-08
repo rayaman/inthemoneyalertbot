@@ -5,7 +5,6 @@ const earnings = require("./earnings")
 if (result.error) {
     throw result.error
 }
-const maxRoles = 100
 const schedule = require('node-schedule')
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
@@ -47,9 +46,6 @@ function send(msg, txt) {
     if (!speak)
         return
     msg.channel.send(txt)
-}
-function replaceAll(string, search, replace) {
-  return string.split(search).join(replace);
 }
 function alert(args, msg) {
     var alreadyHave = new Array();
@@ -139,18 +135,19 @@ function userHasRole(message, role) {
     return message.member.roles.some(r => role == r.name)
 }
 function createRole(msg, r, callback) {
-    console.log("Creating role: "+r)
     if (roleExists(msg, r)) {
+        callback(roleExists(msg, r))
+        returnif (roleExists(msg, r)) {
         callback(roleExists(msg, r))
         return
     }
-    if (RoleCount(msg)>=maxRoles){
-	reply(msg,"The bot has reached the max number of roles it is allowed to create!")
-	speak = false
-	setTimeout(()=>{
-	    speak = true
-	},1000)
-	return 
+    msg.channel.guild.createRole({
+        name: r,
+        color: 'GOLD',
+        mentionable: true,
+    })
+        .then(callback)
+        .catch(console.error)
     }
     msg.channel.guild.createRole({
         name: r,
@@ -197,27 +194,14 @@ function Purge(msg) {
         })
     })
 }
-function RoleCount(msg) {
-    var count = 0
-    msg.guild.roles.forEach(role => {
-	if (role.name.startsWith("$")) {
-	     count = count + 1
-	}
-    })
-    return count
-}
-function CleanRoles(msg) {
+function CleanRoles(msg){
     msg.guild.members.forEach(member => {
 	member.roles.forEach(role => {
-	    if (role.name.startsWith("$$")) {
-	        createRole(msg, "$"+replaceAll(role.name,"$",""), r => {
-		    member.addRole(r).catch(console.error);
-		    console.log("Adding Role: "+r)
-		    role.delete()
-		})
+	    if (role.name.startsWith("$$")){
+		role.delete()
 	    }
-	})
-    })
+	}
+    }
 }
 function show(msg, args) {
     if (args.length < 1) {
@@ -364,9 +348,8 @@ bot.on('message', msg => {
     //Ignore all messages not starting with '!'
     if (msg.content.startsWith("!")) {
         var rawmsg = msg.content.substring(1);
-	//rawmsg = rawmsg.replace("$", "")
-        rawmsg = replaceAll(rawmsg,"$","")
-	if (rawmsg.includes(",")) {
+	rawmsg = rawmsg.replace("$", "")
+        if (rawmsg.includes(",")) {
             var _cmd = rawmsg.split(" ")
             var args = [_cmd[0]]
             args = args.concat(_cmd[1].split(","))
@@ -379,9 +362,6 @@ bot.on('message', msg => {
         }
         // Remember to modify the aliases dictonary! The key is the case being tested
         switch (cmd) {
-	    case "count":
-		reply(msg,"Count: "+RoleCount(msg))
-		break
             case "alert":
                 alert(args, msg)
                 break
@@ -414,10 +394,6 @@ bot.on('message', msg => {
                     Purge(msg)
                 }
                 break
-	    case "clean":
-		if (msg.author.id == 137988979088818177) {
-		    CleanRoles(msg)
-		}
             case "earnings":
                 //
                 break
