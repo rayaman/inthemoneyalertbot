@@ -15,6 +15,8 @@ const publicDirectoryPath = path.join(__dirname, "/public")
 const viewsPath = path.join(__dirname, 'templates/views')
 const paritalsPath = path.join(__dirname, 'templates/partials')
 
+const Log = require("../models/log")
+
 app.set('view engine', 'hbs')
 app.set('views', viewsPath)
 hbs.registerPartials(paritalsPath)
@@ -296,20 +298,6 @@ function InitBot(){
             }
         })
     }
-    /*
-    var arr = new Array()
-        for(var i in list) {
-            if (list[i].length>0) {
-                arr.push({"name": i,"value": list[i].toString()})
-            }
-        }
-        var test = {
-            "embed": {
-                "description": "**List of Users watching one or more of: "+ args +"**",
-                "fields": arr
-            }
-        }
-    */
     function _earnings(msg, args) {
         var day = null
         if (args.includes("TOMORROW")) {
@@ -390,6 +378,7 @@ function InitBot(){
     bot.on('message', msg => {
         //Ignore all messages not starting with '!'
         if (msg.content.startsWith("!")) {
+            var valid = true
             var rawmsg = msg.content.substring(1);
             //rawmsg = rawmsg.replace("$", "")
             rawmsg = replaceAll(rawmsg,"$","")
@@ -463,7 +452,15 @@ function InitBot(){
                     _earnings(msg, args)
                     break
                 default:
+                    valid = false
                     console.log("Invalid command!")
+            }
+            if(valid){
+                // Add a log
+                var log = new Log()
+                log.sender = msg.author.name
+                log.command = cmd
+                log.save()
             }
         }
     });
