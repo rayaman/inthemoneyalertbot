@@ -1,5 +1,5 @@
 require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/");
-var result = require('dotenv').config()
+//var result = require('dotenv').config()
 const http = require('http')
 const axios = require('axios')
 const earnings = require("./earnings")
