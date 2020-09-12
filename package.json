@@ -28,7 +28,7 @@
     "handlebars": "^4.7.6",
     "hbs": "^4.1.1",
     "heroku-self-ping": "^2.0.1",
-    "moongoose": "0.0.5",
+    "mongoose": "^5.10.5",
     "mustache": "^4.0.1",
     "node-schedule": "^1.3.2",
     "nodemon": "^2.0.2"
