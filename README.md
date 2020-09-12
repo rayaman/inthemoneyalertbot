@@ -6,3 +6,4 @@ Alert members who subscribe to a ticket symbol
 
 !removealerts, !r [tickerSymbol s2 s3 ...] Example Usage: `removealerts AMD MSFT`
 
+!show, !s [tickerSymbol s2 s3 ...]
