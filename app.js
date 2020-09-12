@@ -1,4 +1,4 @@
-const mins = 1
+const mins = 5
 require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/",{interval: mins*60*1000})
 var result = require('dotenv').config()
 const http = require('http')
@@ -23,7 +23,7 @@ app.use(express.json())
 app.use(express.static(publicDirectoryPath))//console.log(req.secure)
 
 
-const maxRoles = 100
+const maxRoles = 150
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
 const Discord = require('discord.js')
@@ -450,11 +450,13 @@ function InitBot(){
                 case "purge":
                     if (msg.author.id == 137988979088818177) {
                         Purge(msg)
+                        reply(msg,"Purging all roles!")
                     }
                     break
                 case "clean":
                     if (msg.author.id == 137988979088818177) {
                         CleanRoles(msg)
+                        reply(msg,"Cleaning up roles!")
                     }
                     break
                 case "e":
