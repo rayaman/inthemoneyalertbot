@@ -1,3 +1,4 @@
+require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/");
 var result = require('dotenv').config()
 const http = require('http')
 const axios = require('axios')
@@ -342,6 +343,11 @@ bot.on('message', msg => {
         }
         // Remember to modify the aliases dictonary! The key is the case being tested
         switch (cmd) {
+            case "reboot":
+                if (msg.author.id == 137988979088818177) {
+                    process.exit(0)
+                }
+                break
             case "alert":
                 alert(args, msg)
                 break
