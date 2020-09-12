@@ -3,7 +3,6 @@ const mongoose = require("mongoose")
 //mongodb+srv://wag:weloveauctions2020@supercluster-hx6pa.mongodb.net/wagdatabase?retryWrites=true&w=majority
 const pass = process.env.PASS
 const user = process.env.USER
-console.log("Connection String: mongodb+srv://"+user+":"+pass+"@supercluster-hx6pa.mongodb.net/itmdatabase?retryWrites=true&w=majority")
 mongoose.connect("mongodb+srv://"+user+":"+pass+"@supercluster-hx6pa.mongodb.net/itmdatabase?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useCreateIndex: true
