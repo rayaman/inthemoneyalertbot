@@ -1,4 +1,4 @@
-const mins = 15
+const mins = 5
 require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/",{interval: mins*60*1000})
 var result = require('dotenv').config()
 const http = require('http')
