@@ -3,7 +3,7 @@ require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/",{inte
 var result = require('dotenv').config()
 const http = require('http')
 const axios = require('axios')
-const earnings = require("./earnings")
+const earnings = require("./src/earnings")
 const schedule = require('node-schedule')
 const hbs = require('hbs')
 const path = require('path')
@@ -15,7 +15,7 @@ const publicDirectoryPath = path.join(__dirname, "/public")
 const viewsPath = path.join(__dirname, 'templates/views')
 const paritalsPath = path.join(__dirname, 'templates/partials')
 
-const Log = require("../models/log")
+const Log = require("./src/models/log")
 
 app.set('view engine', 'hbs')
 app.set('views', viewsPath)
@@ -458,14 +458,15 @@ function InitBot(){
             if(valid){
                 // Add a log
                 var log = new Log()
-                log.sender = msg.author.name
-                log.command = cmd
+                log.sender = msg.member.user.tag
+                log.command = "!"+rawmsg
                 log.save()
             }
         }
     });
     bot.login(TOKEN) // Token var from env
 }
+
 app.get("/reboot", (req,res)=>{
     res.send(`
         <script>
@@ -474,6 +475,11 @@ app.get("/reboot", (req,res)=>{
         </script>
     `);
     resetBot()
+})
+
+app.get("/logs", async (req,res)=>{
+    var list = await Log.find({})
+    res.send(list)
 })
 
 _http.listen(port, function(){
