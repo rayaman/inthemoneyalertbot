@@ -22,6 +22,8 @@ hbs.registerPartials(paritalsPath)
 app.use(express.json())
 app.use(express.static(publicDirectoryPath))//console.log(req.secure)
 
+
+const maxRoles = 100
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
 const Discord = require('discord.js')
