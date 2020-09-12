@@ -357,13 +357,16 @@ function my_earnings(msg, day) {
         send(msg, "No earnings to display")
     }
 }
+function isAdmin(msg){
+    return msg.author.roles.find(role => role.name === "Moderator");
+}
 bot.on('message', msg => {
     //Ignore all messages not starting with '!'
     if (msg.content.startsWith("!")) {
         var rawmsg = msg.content.substring(1);
-	//rawmsg = rawmsg.replace("$", "")
+	    //rawmsg = rawmsg.replace("$", "")
         rawmsg = replaceAll(rawmsg,"$","")
-	if (rawmsg.includes(",")) {
+	    if (rawmsg.includes(",")) {
             var _cmd = rawmsg.split(" ")
             var args = [_cmd[0]]
             args = args.concat(_cmd[1].split(","))
@@ -378,6 +381,7 @@ bot.on('message', msg => {
         switch (cmd) {
             case "reboot":
                 if (msg.author.id == 137988979088818177) {
+                    msg.author.roleExists()
                     process.exit(0)
                 }
                 break
@@ -416,12 +420,10 @@ bot.on('message', msg => {
                     Purge(msg)
                 }
                 break
-	    case "clean":
-		if (msg.author.id == 137988979088818177) {
-		    CleanRoles(msg)
-		}
-            case "earnings":
-                //
+            case "clean":
+                if (msg.author.id == 137988979088818177) {
+                    CleanRoles(msg)
+                }
                 break
             case "e":
                 _earnings(msg, args)
