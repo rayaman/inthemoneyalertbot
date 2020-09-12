@@ -1,11 +1,8 @@
 require('heroku-self-ping').default("https://itmstockalert.herokuapp.com/");
-//var result = require('dotenv').config()
+var result = require('dotenv').config()
 const http = require('http')
 const axios = require('axios')
 const earnings = require("./earnings")
-if (result.error) {
-    throw result.error
-}
 const schedule = require('node-schedule')
 //bot link
 //https://discordapp.com/api/oauth2/authorize?client_id=669932912854171678&permissions=268635200&scope=bot
