@@ -82,7 +82,7 @@ function InitBot(){
         var noHave = new Array();
         if (args.length == 0) {
             //Display all alerts
-            msg.member.roles.find(r => {
+            msg.member.roles.cache.find(r => {
                 if (r.name.startsWith("$")) {
                     alreadyHave.push(r.name.substring(1))
                 }
@@ -95,7 +95,7 @@ function InitBot(){
             return
         }
         for (var a in args) {
-            if (msg.member.roles.find(r => r.name === "$" + args[a])) {
+            if (msg.member.roles.cache.find(r => r.name === "$" + args[a])) {
                 alreadyHave.push(args[a])
             } else {
                 noHave.push(args[a])
@@ -115,7 +115,7 @@ function InitBot(){
     }
     function removealert(args, msg) {
         if (args.length == 0) {
-            msg.member.roles.find(r => {
+            msg.member.roles.cache.find(r => {
                 if (r.name.startsWith("$")) {
                     removeRole(msg, r.name)
                 }
@@ -156,7 +156,7 @@ function InitBot(){
         return cmd
     }
     function roleExists(message, r) {
-        return message.guild.roles.find(role => role.name === r);
+        return message.guild.roles.cache.find(role => role.name === r);
     }
     function userHasRoles(message, roles) {
         return message.member.roles.some(r => roles.includes(r.name))
@@ -206,7 +206,7 @@ function InitBot(){
         }
     }
     function CheckTickers(msg) {
-        msg.guild.roles.forEach(role => {
+        msg.guild.roles.cache.forEach(role => {
             if (msg.guild.roles.get(roleExists(msg, role.name).id).members.map(m => m.user.tag).join('') === "") {
                 if (role.name.startsWith("$")) { // Delete only roles that have $... that are no longer in use
                     deleteRole(msg, role.name)
@@ -215,8 +215,8 @@ function InitBot(){
         })
     }
     function Purge(msg) {
-        msg.guild.members.forEach(member => {
-            member.roles.forEach(role => {
+        msg.guild.members.cache.forEach(member => {
+            member.roles.cache.forEach(role => {
                 if (role.name.startsWith("$")) {
                     role.delete()
                 }
@@ -225,7 +225,7 @@ function InitBot(){
     }
     function RoleCount(msg) {
         var count = 0
-        msg.guild.roles.forEach(role => {
+        msg.guild.roles.cache.forEach(role => {
         if (role.name.startsWith("$")) {
             count = count + 1
         }
@@ -233,8 +233,8 @@ function InitBot(){
         return count
     }
     function CleanRoles(msg) {
-        msg.guild.members.forEach(member => {
-        member.roles.forEach(role => {
+        msg.guild.members.cache.forEach(member => {
+        member.roles.cache.forEach(role => {
             if (role.name.startsWith("$$")) {
                 createRole(msg, "$"+replaceAll(role.name,"$",""), r => {
                 member.addRole(r).catch(console.error);
@@ -254,11 +254,11 @@ function InitBot(){
             args[a] = "$" + args[a]
         }
         var list = {}
-        msg.guild.members.forEach(member => {
+        msg.guild.members.cache.forEach(member => {
             if (!(member.displayName in list)) {
                 list[member.displayName] = new Array()
             }
-            member.roles.forEach(role => {
+            member.roles.cache.forEach(role => {
                 if (args.includes(role.name)) {
                     list[member.displayName].push([role.name])
                 }
