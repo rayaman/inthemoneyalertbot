@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/rayaman/inthemoneyalertbot#readme",
   "dependencies": {
-    "alphavantage": "^1.2.6",
+    "alphavantage": "^2.4.1",
     "axios": "^0.21.2",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
